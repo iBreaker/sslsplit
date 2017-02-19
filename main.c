@@ -63,6 +63,7 @@ extern int daemon(int, int);
 #endif /* __APPLE__ */
 
 
+
 /*
  * Print version information to stderr.
  */
@@ -271,6 +272,7 @@ main_loadtgcrt(const char *filename, void *arg)
  * Handle out of memory conditions in early stages of main().
  * Print error message and exit with failure status code.
  * Does not return.
+ * 获取oom错误，打印错误并且退出
  */
 void NORET
 oom_die(const char *argv0)
@@ -302,6 +304,9 @@ main(int argc, char *argv[])
 		natengine = NULL;
 	}
 
+	/*
+	 * 写参数解析函数比较麻烦
+	 * */
 	while ((ch = getopt(argc, argv, OPT_g OPT_G OPT_Z OPT_i "k:c:C:K:t:"
 	                    "OPs:r:R:e:Eu:m:j:p:l:L:S:F:dDVhW:w:")) != -1) {
 		switch (ch) {
