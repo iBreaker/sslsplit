@@ -37,10 +37,10 @@
 ```cpp
  #include<unistd.h>
  int getopt(int argc, char * const argv[], const char * optstring);
- ```
- 
- ## 技巧
- ### 长字符串换行
+```
+
+## 技巧
+### 长字符串换行
  
  ```cpp
  	fprintf(stderr,
