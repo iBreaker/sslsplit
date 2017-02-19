@@ -29,3 +29,33 @@
 2. 打印版本信息函数
 
 ### log
+
+## 重要函数
+### getopt
+[看云](http://www.kancloud.cn/wizardforcel/linux-c-api-ref/98621)
+
+```cpp
+ #include<unistd.h>
+ int getopt(int argc, char * const argv[], const char * optstring);
+ ```
+ 
+ ## 技巧
+ ### 长字符串换行
+ 
+ ```cpp
+ 	fprintf(stderr,
+"Usage: %s [options...] [proxyspecs...]\n"
+"  -c pemfile  use CA cert (and key) from pemfile to sign forged certs\n"
+"  -k pemfile  use CA key (and cert) from pemfile to sign forged certs\n"
+"  -C pemfile  use CA chain from pemfile (intermediate and root CA certs)\n"
+"  -K pemfile  use key from pemfile for leaf certs (default: generate)\n"
+"  -t certdir  use cert+chain+key PEM files from certdir to target all sites\n"
+"              matching the common names (non-matching: generate if CA)\n"
+"  -w gendir   write leaf key and only generated certificates to gendir\n"
+"  -W gendir   write leaf key and all certificates to gendir\n"
+"  -O          deny all OCSP requests on all proxyspecs\n"
+"  -P          passthrough SSL connections if they cannot be split because of\n"
+"              client cert auth or no matching cert and no CA (default: drop)\n"
+)
+ ```
+
