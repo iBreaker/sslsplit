@@ -249,7 +249,7 @@ proxy_gc_cb(UNUSED evutil_socket_t fd, UNUSED short what, void *arg)
  * Returns ctx on success, or NULL on error.
  */
 proxy_ctx_t *
-proxy_new(opts_t *opts, int clisock)
+proxy_new(opts_t *opts, int clisock)	//初始化
 {
 	proxy_listener_ctx_t *head;
 	proxy_ctx_t *ctx;
@@ -315,7 +315,7 @@ proxy_new(opts_t *opts, int clisock)
 	}
 
 	head = ctx->lctx = NULL;
-	for (proxyspec_t *spec = opts->spec; spec; spec = spec->next) {
+	for (proxyspec_t *spec = opts->spec; spec; spec = spec->next) {	//设置监听
 		head = proxy_listener_setup(ctx->evbase, ctx->thrmgr,
 		                            spec, opts, clisock);
 		if (!head)
@@ -387,7 +387,7 @@ proxy_run(proxy_ctx_t *ctx)
 	if (OPTS_DEBUG(ctx->opts)) {
 		log_dbg_printf("Starting main event loop.\n");
 	}
-	event_base_dispatch(ctx->evbase);
+	event_base_dispatch(ctx->evbase);		// 等待事件发生
 	if (OPTS_DEBUG(ctx->opts)) {
 		log_dbg_printf("Main event loop stopped.\n");
 	}

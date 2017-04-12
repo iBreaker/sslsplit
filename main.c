@@ -294,7 +294,7 @@ main(int argc, char *argv[])
 
 	argv0 = argv[0];
 	opts = opts_new();
-	if (nat_getdefaultname()) {
+	if (nat_getdefaultname()) {		//获取nat引擎信息
 		natengine = strdup(nat_getdefaultname());
 		if (!natengine)
 			oom_die(argv0);
@@ -305,10 +305,10 @@ main(int argc, char *argv[])
 	while ((ch = getopt(argc, argv, OPT_g OPT_G OPT_Z OPT_i "k:c:C:K:t:"
 	                    "OPs:r:R:e:Eu:m:j:p:l:L:S:F:dDVhW:w:")) != -1) {
 		switch (ch) {
-			case 'c':
+			case 'c':	//加载cacrt
 				if (opts->cacrt)
 					X509_free(opts->cacrt);
-				opts->cacrt = ssl_x509_load(optarg);
+				opts->cacrt = ssl_x509_load(optarg);	
 				if (!opts->cacrt) {
 					fprintf(stderr, "%s: error loading CA "
 					                "cert from '%s':\n",
@@ -332,7 +332,7 @@ main(int argc, char *argv[])
 				}
 #endif /* !OPENSSL_NO_DH */
 				break;
-			case 'k':
+			case 'k':	//加载cakey
 				if (opts->cakey)
 					EVP_PKEY_free(opts->cakey);
 				opts->cakey = ssl_key_load(optarg);
@@ -400,7 +400,7 @@ main(int argc, char *argv[])
 				}
 #endif /* !OPENSSL_NO_DH */
 				break;
-			case 't':
+			case 't':	//tgcrtdir
 				if (!sys_isdir(optarg)) {
 					fprintf(stderr, "%s: '%s' is not a "
 					                "directory\n",
@@ -439,7 +439,7 @@ main(int argc, char *argv[])
 				break;
 #endif /* !OPENSSL_NO_DH */
 #ifndef OPENSSL_NO_ECDH
-			case 'G':
+			case 'G':	// ECDH
 			{
 				EC_KEY *ec;
 				if (opts->ecdhcurve)
@@ -458,7 +458,7 @@ main(int argc, char *argv[])
 			}
 #endif /* !OPENSSL_NO_ECDH */
 #ifdef SSL_OP_NO_COMPRESSION
-			case 'Z':
+			case 'Z':	//压缩
 				opts->sslcomp = 0;
 				break;
 #endif /* SSL_OP_NO_COMPRESSION */
@@ -485,7 +485,7 @@ main(int argc, char *argv[])
 				nat_list_engines();
 				exit(EXIT_SUCCESS);
 				break;
-			case 'u':
+			case 'u':	//用户
 				if (!sys_isuser(optarg)) {
 					fprintf(stderr, "%s: '%s' is not an "
 					                "existing user\n",
@@ -498,7 +498,7 @@ main(int argc, char *argv[])
 				if (!opts->dropuser)
 					oom_die(argv0);
 				break;
-			case 'm':
+			case 'm':	//组
 				if (!sys_isgroup(optarg)) {
 					fprintf(stderr, "%s: '%s' is not an "
 					                "existing group\n",
@@ -511,7 +511,7 @@ main(int argc, char *argv[])
 				if (!opts->dropgroup)
 					oom_die(argv0);
 				break;
-			case 'p':
+			case 'p':	//pid
 				if (opts->pidfile)
 					free(opts->pidfile);
 				opts->pidfile = strdup(optarg);
@@ -700,7 +700,7 @@ main(int argc, char *argv[])
 		fprintf(stderr, "%s: no proxyspec specified.\n", argv0);
 		exit(EXIT_FAILURE);
 	}
-	for (proxyspec_t *spec = opts->spec; spec; spec = spec->next) {
+	for (proxyspec_t *spec = opts->spec; spec; spec = spec->next) {	//proxyspec
 		if (spec->connect_addrlen || spec->sni_port)
 			continue;
 		if (!spec->natengine) {
@@ -719,7 +719,7 @@ main(int argc, char *argv[])
 		spec->natlookup = nat_getlookupcb(spec->natengine);
 		spec->natsocket = nat_getsocketcb(spec->natengine);
 	}
-	if (opts_has_ssl_spec(opts)) {
+	if (opts_has_ssl_spec(opts)) {	// 是否有ssl相关的proxyspec
 		if (ssl_init() == -1) {
 			fprintf(stderr, "%s: failed to initialize OpenSSL.\n",
 			                argv0);
@@ -736,7 +736,7 @@ main(int argc, char *argv[])
 			exit(EXIT_FAILURE);
 		}
 		if (opts->cakey && opts->cacrt &&
-		    (X509_check_private_key(opts->cacrt, opts->cakey) != 1)) {
+		    (X509_check_private_key(opts->cacrt, opts->cakey) != 1)) {	// 检查是否匹配
 			fprintf(stderr, "%s: CA cert does not match key.\n",
 			                argv0);
 			ERR_print_errors_fp(stderr);
@@ -805,7 +805,7 @@ main(int argc, char *argv[])
 		}
 	}
 
-	if (opts->certgendir) {
+	if (opts->certgendir) {	// 保存
 		char *keyid, *keyfn;
 		int prv;
 		FILE *keyf;
