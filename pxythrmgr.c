@@ -71,6 +71,7 @@ pxy_thrmgr_timer_cb(UNUSED evutil_socket_t fd, UNUSED short what,
 /*
  * Thread entry point; runs the event loop of the event base.
  * Does not exit until the libevent loop is broken explicitly.
+ * 线程的入口。libevent循环结束的时候返回。
  */
 static void *
 pxy_thrmgr_thr(void *arg)
@@ -93,6 +94,7 @@ pxy_thrmgr_thr(void *arg)
 /*
  * Create new thread manager but do not start any threads yet.
  * This gets called before forking to background.
+ * 初始化线程，不运行
  */
 pxy_thrmgr_ctx_t *
 pxy_thrmgr_new(opts_t *opts)
@@ -113,6 +115,7 @@ pxy_thrmgr_new(opts_t *opts)
  * This must be called after forking.
  *
  * Returns -1 on failure, 0 on success.
+ * 初始化线程管理器
  */
 int
 pxy_thrmgr_run(pxy_thrmgr_ctx_t *ctx)
@@ -203,6 +206,7 @@ leave:
 
 /*
  * Destroy the event manager and stop all threads.
+ * 释放
  */
 void
 pxy_thrmgr_free(pxy_thrmgr_ctx_t *ctx)
@@ -235,6 +239,7 @@ pxy_thrmgr_free(pxy_thrmgr_ctx_t *ctx)
  * currently active connections, returns the appropriate event bases.
  * Returns the index of the chosen thread (for passing to _detach later).
  * This function cannot fail.
+ * Attach 一个新的连接到一个线程上面
  */
 int
 pxy_thrmgr_attach(pxy_thrmgr_ctx_t *ctx, struct event_base **evbase,

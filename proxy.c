@@ -59,12 +59,12 @@
 static int signals[] = { SIGQUIT, SIGHUP, SIGINT, SIGPIPE, SIGUSR1 };
 
 struct proxy_ctx {
-	pxy_thrmgr_ctx_t *thrmgr;
-	struct event_base *evbase;
-	struct event *sev[sizeof(signals)/sizeof(int)];
-	struct event *gcev;
-	struct proxy_listener_ctx *lctx;
-	opts_t *opts;
+	pxy_thrmgr_ctx_t *thrmgr;			// 线程管理器
+	struct event_base *evbase;			// event_base
+	struct event *sev[sizeof(signals)/sizeof(int)];	// 信号
+	struct event *gcev;		// 应该是垃圾回收的信号
+	struct proxy_listener_ctx *lctx;	// 监听
+	opts_t *opts;	// 启动参数
 };
 
 
@@ -72,9 +72,9 @@ struct proxy_ctx {
  * Listener context.
  */
 typedef struct proxy_listener_ctx {
-	pxy_thrmgr_ctx_t *thrmgr;
-	proxyspec_t *spec;
-	opts_t *opts;
+	pxy_thrmgr_ctx_t *thrmgr;		// 线程管理器
+	proxyspec_t *spec;				// proxyspec
+	opts_t *opts;					// 启动参数
 	struct evconnlistener *evcl;
 	struct proxy_listener_ctx *next;
 } proxy_listener_ctx_t;
@@ -112,6 +112,7 @@ proxy_listener_ctx_free(proxy_listener_ctx_t *ctx)
 
 /*
  * Callback for accept events on the socket listener bufferevent.
+ * accept的回调函数
  */
 static void
 proxy_listener_acceptcb(UNUSED struct evconnlistener *listener,
@@ -127,6 +128,7 @@ proxy_listener_acceptcb(UNUSED struct evconnlistener *listener,
 
 /*
  * Callback for error events on the socket listener bufferevent.
+ * listener发生错误的回调函数
  */
 static void
 proxy_listener_errorcb(struct evconnlistener *listener, UNUSED void *ctx)
@@ -194,6 +196,7 @@ proxy_listener_setup(struct event_base *evbase, pxy_thrmgr_ctx_t *thrmgr,
 
 /*
  * Signal handler for SIGQUIT, SIGINT, SIGHUP, SIGPIPE and SIGUSR1.
+ * 信号回调函数
  */
 static void
 proxy_signal_cb(evutil_socket_t fd, UNUSED short what, void *arg)
@@ -228,6 +231,7 @@ proxy_signal_cb(evutil_socket_t fd, UNUSED short what, void *arg)
 
 /*
  * Garbage collection handler.
+ * 回收垃圾
  */
 static void
 proxy_gc_cb(UNUSED evutil_socket_t fd, UNUSED short what, void *arg)
@@ -237,7 +241,7 @@ proxy_gc_cb(UNUSED evutil_socket_t fd, UNUSED short what, void *arg)
 	if (OPTS_DEBUG(ctx->opts))
 		log_dbg_printf("Garbage collecting caches started.\n");
 
-	cachemgr_gc();
+	cachemgr_gc();	// 回收垃圾
 
 	if (OPTS_DEBUG(ctx->opts))
 		log_dbg_printf("Garbage collecting caches done.\n");
@@ -247,6 +251,7 @@ proxy_gc_cb(UNUSED evutil_socket_t fd, UNUSED short what, void *arg)
  * Set up the core event loop.
  * Socket clisock is the privsep client socket used for binding to ports.
  * Returns ctx on success, or NULL on error.
+ * 设置event loop
  */
 proxy_ctx_t *
 proxy_new(opts_t *opts, int clisock)	//初始化
@@ -308,7 +313,7 @@ proxy_new(opts_t *opts, int clisock)	//初始化
 		proxy_debug_base(ctx->evbase);
 	}
 
-	ctx->thrmgr = pxy_thrmgr_new(opts);
+	ctx->thrmgr = pxy_thrmgr_new(opts);		// 初始化线程相关的东西
 	if (!ctx->thrmgr) {
 		log_err_printf("Error creating thread manager\n");
 		goto leave1b;
@@ -333,7 +338,7 @@ proxy_new(opts_t *opts, int clisock)	//初始化
 	}
 
 	struct timeval gc_delay = {60, 0};
-	ctx->gcev = event_new(ctx->evbase, -1, EV_PERSIST, proxy_gc_cb, ctx);
+	ctx->gcev = event_new(ctx->evbase, -1, EV_PERSIST, proxy_gc_cb, ctx); //每60秒回收一次垃圾
 	if (!ctx->gcev)
 		goto leave4;
 	evtimer_add(ctx->gcev, &gc_delay);
@@ -380,7 +385,7 @@ proxy_run(proxy_ctx_t *ctx)
 		event_base_dump_events(ctx->evbase, stderr);
 	}
 #endif /* PURIFY */
-	if (pxy_thrmgr_run(ctx->thrmgr) == -1) {
+	if (pxy_thrmgr_run(ctx->thrmgr) == -1) {	// 运行线程
 		log_err_printf("Failed to start thread manager\n");
 		return;
 	}
