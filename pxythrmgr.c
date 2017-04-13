@@ -132,13 +132,13 @@ pxy_thrmgr_run(pxy_thrmgr_ctx_t *ctx)
 	}
 	memset(ctx->thr, 0, ctx->num_thr * sizeof(pxy_thr_ctx_t*));
 
-	for (idx = 0; idx < ctx->num_thr; idx++) {
-		if (!(ctx->thr[idx] = malloc(sizeof(pxy_thr_ctx_t)))) {
+	for (idx = 0; idx < ctx->num_thr; idx++) {				// 每个线程一个循环
+		if (!(ctx->thr[idx] = malloc(sizeof(pxy_thr_ctx_t)))) {	// 申请内存
 			log_dbg_printf("Failed to allocate memory\n");
 			goto leave;
 		}
 		memset(ctx->thr[idx], 0, sizeof(pxy_thr_ctx_t));
-		ctx->thr[idx]->evbase = event_base_new();
+		ctx->thr[idx]->evbase = event_base_new();	// 每个线程的event_base
 		if (!ctx->thr[idx]->evbase) {
 			log_dbg_printf("Failed to create evbase %d\n", idx);
 			goto leave;
@@ -153,14 +153,14 @@ pxy_thrmgr_run(pxy_thrmgr_ctx_t *ctx)
 				goto leave;
 			}
 		}
-		ctx->thr[idx]->load = 0;
+		ctx->thr[idx]->load = 0;		// 初始化
 		ctx->thr[idx]->running = 0;
 	}
 
 	log_dbg_printf("Initialized %d connection handling threads\n",
 	               ctx->num_thr);
 
-	for (idx = 0; idx < ctx->num_thr; idx++) {
+	for (idx = 0; idx < ctx->num_thr; idx++) {	// 运行
 		if (pthread_create(&ctx->thr[idx]->thr, NULL,
 		                   pxy_thrmgr_thr, ctx->thr[idx]))
 			goto leave_thr;
@@ -249,7 +249,7 @@ pxy_thrmgr_attach(pxy_thrmgr_ctx_t *ctx, struct event_base **evbase,
 	size_t minload;
 
 	thridx = 0;
-	pthread_mutex_lock(&ctx->mutex);
+	pthread_mutex_lock(&ctx->mutex);	// 上锁
 	minload = ctx->thr[thridx]->load;
 #ifdef DEBUG_THREAD
 	log_dbg_printf("===> Proxy connection handler thread status:\n"
@@ -267,7 +267,7 @@ pxy_thrmgr_attach(pxy_thrmgr_ctx_t *ctx, struct event_base **evbase,
 	*evbase = ctx->thr[thridx]->evbase;
 	*dnsbase = ctx->thr[thridx]->dnsbase;
 	ctx->thr[thridx]->load++;
-	pthread_mutex_unlock(&ctx->mutex);
+	pthread_mutex_unlock(&ctx->mutex);	// 解锁
 
 #ifdef DEBUG_THREAD
 	log_dbg_printf("thridx: %d\n", thridx);

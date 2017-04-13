@@ -75,8 +75,8 @@ typedef struct proxy_listener_ctx {
 	pxy_thrmgr_ctx_t *thrmgr;		// 线程管理器
 	proxyspec_t *spec;				// proxyspec
 	opts_t *opts;					// 启动参数
-	struct evconnlistener *evcl;
-	struct proxy_listener_ctx *next;
+	struct evconnlistener *evcl;	// 
+	struct proxy_listener_ctx *next;// 链表next指针
 } proxy_listener_ctx_t;
 
 static proxy_listener_ctx_t *
@@ -313,7 +313,7 @@ proxy_new(opts_t *opts, int clisock)	//初始化
 		proxy_debug_base(ctx->evbase);
 	}
 
-	ctx->thrmgr = pxy_thrmgr_new(opts);		// 初始化线程相关的东西
+	ctx->thrmgr = pxy_thrmgr_new(opts);								// 初始化线程相关的东西
 	if (!ctx->thrmgr) {
 		log_err_printf("Error creating thread manager\n");
 		goto leave1b;
